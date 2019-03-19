@@ -6,6 +6,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var chartView: ChartView!
     @IBOutlet weak var horizontalChartView: ChartView!
     
+    @IBOutlet weak var segmentedControl: UISegmentedControl!
+    
     var animatedLayer: CALayer?
     var maskLayuer: CALayer?
     
@@ -150,12 +152,24 @@ class ViewController: UIViewController {
         return
     }
     
+    @IBAction func redrawChart(_ sender: Any) {
+        self.chartView.drawChart()
+    }
 }
 
 extension ViewController:ChartViewDatasource {
     
     func numberOfSections(in chartView: ChartView) -> Int {
-        return chartView == self.chartView ? 5 : 1
+        if chartView == self.chartView {
+            if self.segmentedControl.selectedSegmentIndex == 0 {
+                return 12
+            } else if self.segmentedControl.selectedSegmentIndex == 1 {
+                return 5
+            } else if self.segmentedControl.selectedSegmentIndex == 2 {
+                return 7
+            }
+        }
+        return 1
     }
     
     func chatrView(_ chartView: ChartView, hasSubChartInSection: Int) -> Bool {
@@ -168,13 +182,17 @@ extension ViewController:ChartViewDatasource {
     
     private func testData(_ inSection: Int, chartView: ChartView) -> ChartData {
         let components: [ChartDataComponent] = {
-            let n: CGFloat = {
+            var n: CGFloat = {
                 if inSection == 0 {
                     return CGFloat(0.8)
                 } else {
                     return CGFloat(inSection)
                 }
             }()
+            
+            while n > (6) {
+                n /= 2
+            }
             
             let first = MyChartDataComponent(data: n, color: UIColor(displayP3Red: 111/255, green: 119/255, blue: 201/255, alpha: 1.0).cgColor)
             let second = MyChartDataComponent(data: n, color: UIColor(displayP3Red: 88/255, green: 202/255, blue: 253/255, alpha: 1.0).cgColor)
@@ -197,7 +215,17 @@ extension ViewController:ChartViewDatasource {
             }
         }()
         
-        let width: CGFloat = chartView == self.chartView ? 20 : 55
+        
+        let width: CGFloat = {
+            if chartView == self.chartView {
+                if self.segmentedControl.selectedSegmentIndex == 2 {
+                    return 15
+                }
+                return 20
+            } else {
+                return 55
+            }
+        }()
         
         var data = MyChartData(components: components, barWidth: width, subComponents: components, subBarWidth: 5, startPeriod: firstPeriod, endPeriod: endPeriod, timeDuration: "24:00")
         data.subComponents = components

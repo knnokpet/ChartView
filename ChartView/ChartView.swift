@@ -32,7 +32,13 @@ class ChartView: UIView {
         drawChart()
     }
     
+    private func resetCharLayer() {
+        self.mainLayer.sublayers?.forEach { $0.removeFromSuperlayer() }
+    }
+    
     internal func drawChart() {
+        
+        resetCharLayer()
         
         guard let dataSource = self.dataSource else { return }
         
